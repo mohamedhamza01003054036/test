@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>خطة التعينات داخل الادارة الهندسية</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4efe9 100%);
+            color: #333;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(90deg, #2c3e50 0%, #4a6580 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .description {
+            font-size: 18px;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 20px;
+        }
+        
+        .legend {
+            width: 100%;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 20px;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-left: 10px;
+        }
+        
+        .chart-container {
+            width: 100%;
+            overflow: auto;
+            position: relative;
+            min-height: 600px;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            padding: 20px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><rect width="40" height="40" fill="none" stroke="rgba(0,0,0,0.05)" stroke-width="1"/></svg>');
+        }
+        
+        .org-chart {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 1000px;
+            position: relative;
+        }
+        
+        .level {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+            width: 100%;
+        }
+        
+        .node {
+            width: 200px;
+            padding: 15px;
+            margin: 0 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .node:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .node.core {
+            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+            color: white;
+        }
+        
+        .node.technical {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+        }
+        
+        .node.quality {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+        }
+        
+        .node.admin {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            color: white;
+        }
+        
+        .node-title {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+        
+        .node-desc {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .connections {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .connector {
+            position: absolute;
+            background: rgba(100, 100, 100, 0.3);
+            transform-origin: 0 0;
+        }
+        
+        .controls {
+            width: 100%;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .phase-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 30px;
+            background: #4a6580;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .phase-btn:hover {
+            background: #2c3e50;
+            transform: translateY(-2px);
+        }
+        
+        .phase-btn i {
+            margin-left: 8px;
+        }
+        
+        .info-panel {
+            width: 100%;
+            padding: 20px;
+            margin-top: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .info-panel h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .info-panel.active {
+            display: block;
+        }
+        
+        .phase-steps {
+            list-style-type: none;
+        }
+        
+        .phase-steps li {
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+        }
+        
+        .phase-steps li i {
+            margin-left: 10px;
+            color: #3498db;
+        }
+        
+        @media (max-width: 992px) {
+            .level {
+                flex-wrap: wrap;
+            }
+            
+            .node {
+                margin: 10px;
+                width: 180px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1> اولوية التعينات المطلوبة للادارة الهندسية طبقا للمراحل </h1>
+            <p class="description">يوضح هذا المخطط متطلبات التعين فى كل مرحلة</p>
+        </header>
+        
+      
+            
+           
+            
+            
+            <div class="controls">
+
+                <button class="phase-btn" data-phase="phase01">
+                    <i class="fas fa-project-diagram"></i>  تعينات المرحلة الاولى
+                </button>
+                 <button class="phase-btn" data-phase="phase02">
+                    <i class="fas fa-project-diagram"></i>تعينات المرحلة الثانية
+                </button>
+
+            </div>
+            
+            <div class="info-panel" id="planning-panel">
+                <h3>مرحلة التخطيط والبدء (Pre-Construction)</h3>
+                <ul class="phase-steps">
+                    <li><i class="fas fa-check-circle"></i> مدير المشروع يتسلم توجهاً عاماً من الإدارة العليا</li>
+                    <li><i class="fas fa-check-circle"></i> مدير العقود والمدير القانوني يشاركان في مراجعة عقد المشروع الرئيسي</li>
+                    <li><i class="fas fa-check-circle"></i> مدير المشروع يعقد اجتماعاً تحضيرياً مع جميع المدراء</li>
+                    <li><i class="fas fa-check-circle"></i> مدير التخطيط يطور الجدول الزمني الرئيسي بالتعاون مع مدير التنفيذ والمكتب الفني</li>
+                    <li><i class="fas fa-check-circle"></i> المكتب الفني يبدأ في دراسة الرسومات والمخططات الأولية</li>
+                    <li><i class="fas fa-check-circle"></i> مدير المشتريات يبدأ في إعداد جدول المشتريات</li>
+                    <li><i class="fas fa-check-circle"></i> مدير المالية يحدد ميزانية المشروع التفصيلية</li>
+                    <li><i class="fas fa-check-circle"></i> مدير الجودة ومدير السلامة يضعان خطط إدارة الجودة والسلامة</li>
+                </ul>
+            </div>
+            
+           <div class="info-panel" id="phase01-panel">
+                <h3>مرحلة الاولى (Phase 01-فى خلال الشهر القادم حيث يتم التعين بنهاية شهر 9/2025)</h3>
+                <ul class="phase-steps">
+                    <li><i class="fas fa-check-circle"></i> مهنـــــدس موقـــــع يتم تعينة ويكون مسؤول بشكل عن مشروع أركان</li>
+                    <li></i> خبرة لا تقل عن 5:8 سنوات فى مجال الانشاءات والمواقع</li>
+                    <li></i> يفضل من له خبرة فى استلام اعمال الخرسانات</li>
+                    <li></i> يفضل ان يكن من سكان الجيزة </li>
+                    <li><i class="fas fa-check-circle"></i> مســؤول جودة Quality Controler مختص بمتابعة الجودة لجميع بنود الاعمال الخاصة بكل المواقع </li>
+                    <li></i> خبرة لا تقل عن 5:3 سنوات في لاستلام والفحص ببنود الاعمال في مجال الانشاءات </li>
+                    <li><i class="fas fa-check-circle"></i> مســـؤول سلامة وصحة مهنية HSE لمتابعة كافة اجراءات السلامة والصحة داخل المواقع</li>
+                    <li></i> خبرة لا تقل عن 3:5 سنوات فى مجال السلامة والصحة المهنية بالمواقع الانشائية</li>
+                    <li></i> حاصل على شهادات معتمدة فى مجال السلامة والصحة المهنية</li>
+                    <li><i class="fas fa-check-circle"></i> مســـؤول توثيق Document Controler مســـؤؤل عن توثيق كافة المستندات والمراسلات الخاصة بكل مشروع</li>
+                    <li></i> خبرة لا تقل عن 3:5 سنوات فى مجال التوثيق للمشاريع الانشائية</li>
+
+                </ul>
+            </div>
+          <div class="info-panel" id="phase02-panel">
+                <h3>مرحلة الثانية (Phase 02-فى خلال 3 اشهر حيث يتم التعين بنهاية 11/2025)</h3>
+                <ul class="phase-steps">
+                    <li><i class="fas fa-check-circle"></i> مديــــر تنفيذ Construction Manager لمتابعة وادارة الاعماال التنفيذية بكافة المواقع</li>
+                    <li></i> خبرة لا تقل عن 12:15 سنوات فى مجال الانشاءات والمواقع</li>
+                    <li></i> يفضل من له خبرة فى استلام اعمال الخرسانات</li>
+                    <li><i class="fas fa-check-circle"></i> مهنـــــدس موقـــــع يتم تعينة ويكون مسؤول بشكل عن مشروع مراكز / الدائرى الاوسطى</li>
+                    <li></i> خبرة لا تقل عن 5:8 سنوات فى مجال الانشاءات والمواقع</li>
+                    <li><i class="fas fa-check-circle"></i> مســؤول مشتريات porcument متخصص فى بنود الاعمال الهندسية المختبفة</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const phaseButtons = document.querySelectorAll('.phase-btn');
+            const infoPanels = document.querySelectorAll('.info-panel');
+            
+            phaseButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const phase = this.getAttribute('data-phase');
+                    
+                    // إخفاء جميع اللوحات
+                    infoPanels.forEach(panel => {
+                        panel.classList.remove('active');
+                    });
+                    
+                    // إظهار اللوحة المحددة
+                    document.getElementById(`${phase}-panel`).classList.add('active');
+                    
+                    // تحديث حالة الأزرار
+                    phaseButtons.forEach(btn => {
+                        btn.style.background = '#4a6580';
+                    });
+                    this.style.background = '#2c3e50';
+                });
+            });
+            
+            // تفعيل أول زر بشكل افتراضي
+            document.querySelector('.phase-btn').click();
+            
+            // إضافة تأثيرات عند التمرير فوق العناصر
+            const nodes = document.querySelectorAll('.node');
+            nodes.forEach(node => {
+                node.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px)';
+                    this.style.boxShadow = '0 12px 25px rgba(0, 0, 0, 0.2)';
+                });
+                
+                node.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
